@@ -4,17 +4,17 @@ Adrian Mazur, Martin Rybka, grupa 7, poniedziałek 12;30, 25.04.2022
 
 module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_Immobilized, LEDs);
 
-    input switch_Damaged;
-    input switch_Immobilized;
     input clk_main;
     input switch_inWombat;
     input switch_inDanger;
+    input switch_Damaged;
+    input switch_Immobilized;
     
     output [7:0] LEDs;
     
     wire kabel_clk_1s;
     wire kabel_clk_10ms;
-    //wire kabel_clk_333ms;
+    wire kabel_clk_333ms;
     wire kabel_inWombat;
     wire kabel_inDanger;
     wire kabel_Damaged;
@@ -25,12 +25,12 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
 
     divider_1s div_1s(clk_main, kabel_clk_1s);
     divider_10ms div_10ms(clk_main, kabel_clk_10ms);
-    //divider_333ms div_333ms(clk_main, kabel_clk_333ms);
+    divider_333ms div_333ms(clk_main, kabel_clk_333ms);
     
     Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
     Debouncer inDanger(kabel_clk_10ms, switch_inDanger, kabel_inDanger);
-    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_inDanger);
-    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_inDanger);
+    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_Damaged);
+    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
 
     counter selfBoom(kabel_clk_1s, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
 
@@ -95,7 +95,7 @@ module divider_10ms(clk, out);
 	reg flag = 1;
 	output reg out;
 
-	reg[14:0] cnt = 0;
+	reg[15:0] cnt = 0;
 
 	always @(posedge clk) begin
 		cnt <= (cnt + 1);
