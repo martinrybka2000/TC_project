@@ -2,7 +2,11 @@
 Adrian Mazur, Martin Rybka, grupa 7, poniedziałek 12;30, 25.04.2022
 */
 
-module main();
+module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_Immobilized, LEDs);
+/*---------------------------------------------------------*/
+    input switch_Damaged;
+    input switch_Immobilized;
+/*---------------------------------------------------------*/
     input clk_main;
     input switch_inWombat;
     input switch_inDanger;
@@ -13,6 +17,11 @@ module main();
     wire kabel_clk_10ms;
     wire kabel_inWombat;
     wire kabel_inDanger;
+/*---------------------------------------------------------*/
+    wire kabel_Damaged;
+    wire kabel_Immobilized;
+    wire kabel_I_am_fucked;
+/*---------------------------------------------------------*/
     wire [3:0] kable_LEDs;
     
 
@@ -21,22 +30,50 @@ module main();
     
     Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
     Debouncer inDanger(kabel_clk_10ms, switch_inDanger, kabel_inDanger);
+/*---------------------------------------------------------*/
+    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_inDanger);
+    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_inDanger);
+/*---------------------------------------------------------*/
     
-    counter selfBoom(kabel_clk_1s, kabel_inDanger, kabel_inWombat, kable_LEDs);
-
-    dead isdead(kable_LEDs, LEDs);
+    counter selfBoom(kabel_clk_1s, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
+/*---------------------------------------------------------*/
+    amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
+/*---------------------------------------------------------*/
+    dead isdead(kabel_clk_1s , kable_LEDs, LEDs);
 
 endmodule
+/*---------------------------------------------------------*/
+module amIfucked(clk, danger ,damaged, immobilized, i_m_fucked);
+    input clk;
+    input danger;
+    input damaged;
+    input immobilized;
+    output reg i_m_fucked;
 
-module dead(in_cnt, display);
+    always @(posedge clk) begin
+        if((danger && damaged) || (danger && immobilized) || (damaged && immobilized)) begin
+            i_m_fucked <= 1;
+        end
+        else begin
+            i_m_fucked <= 0;
+        end
+    end
+    
+endmodule
+/*---------------------------------------------------------*/
+module dead(clk, in_cnt, display);
+    input clk;
     input[3:0] in_cnt;
-    output display;
-    reg[3:0] flag;
+    output reg[3:0] display;
 
-    assign flag = in_cnt;
-    assign display = in_cnt;
-
-    if(flag == 10) begin assign display <= 15; end
+    always @(posedge clk) begin    
+        if(in_cnt == 4'b1010) begin 
+            display <= 15; 
+        end
+        else begin
+            display <= in_cnt;
+        end
+    end
 endmodule
 
 module divider_1s(clk, out);
@@ -109,6 +146,7 @@ endmodule
 module counter(clk, enable, reset, cnt_out);
     input clk;
     input enable;
+    input reset;
     output[3:0] cnt_out;
     reg [3:0] cnt = 0;
 
@@ -116,7 +154,7 @@ module counter(clk, enable, reset, cnt_out);
 
     always @(posedge clk) begin
 
-        if(enable && reset && cnt <= 10) begin 
+        if(enable && reset && cnt < 10) begin 
             cnt <= cnt + 1;
             // if(cnt == 10) begin cnt <= 0; end
         end
@@ -128,18 +166,18 @@ module counter(clk, enable, reset, cnt_out);
     end
 endmodule
 
-module przerzutnik_t(clk, t, q, neqQ);
-    input clk;
-    input t;
-    reg flag = 1;
-    output reg q;
-    output reg neqQ;
+// module przerzutnik_t(clk, t, q, neqQ);
+//     input clk;
+//     input t;
+//     reg flag = 1;
+//     output reg q;
+//     output reg neqQ;
 
-    always @(posedge clk) begin
-        if(t) begin
-            q <= flag;
-            neqQ <= !flag;
-            flag <= !flag;
-        end
-    end
-endmodule
+//     always @(posedge clk) begin
+//         if(t) begin
+//             q <= flag;
+//             neqQ <= !flag;
+//             flag <= !flag;
+//         end
+//     end
+// endmodule
