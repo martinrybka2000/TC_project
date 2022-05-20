@@ -36,7 +36,7 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
 
     amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
 
-    epilepsy my_eyes(kabel_clk_1s, kabel_clk_333ms kable_LEDs, LEDs);
+    epilepsy my_eyes(kabel_clk_1s, kabel_clk_333ms, kable_LEDs, LEDs);
 
 endmodule
 
@@ -64,12 +64,12 @@ module epilepsy(clk, clk_3Hz, in_cnt, display);
     input[7:0] in_cnt;
     output reg[7:0] display;
 
-    always @(posedge clk) begin    
+    /*always @(posedge clk) begin    
         display <= in_cnt;
-    end
+    end*/
 
     always @(posedge clk_3Hz) begin
-        display = (8'b11111111 ^ display) & in_cnt; 
+        display <= (8'b11111111 ^ display) & in_cnt; 
     end
 endmodule
 
@@ -82,7 +82,7 @@ module divider_1s(clk, out);
 
 	always @(posedge clk) begin
 		cnt <= (cnt + 1);
-		if(cnt > 3000000) begin // normlanie by bylo 2500000 czyli co 1s
+		if(cnt > 6000000) begin // normlanie by bylo 2500000 czyli co 1s
 			out <= !flag; 
 			flag <= !flag;
 			cnt <= 0;
@@ -112,11 +112,11 @@ module divider_333ms(clk, out);
 	reg flag = 1;
 	output reg out;
 
-	reg[13:0] cnt = 0;
+	reg[21:0] cnt = 0;
 
 	always @(posedge clk) begin
 		cnt <= (cnt + 1);
-		if(cnt > 9009) begin // normlanie by bylo 7507 czyli co 0.333s
+		if(cnt > 2000000) begin // normlanie by bylo 8333333 czyli co 0.333s
 			out <= !flag; 
 			flag <= !flag;
 			cnt <= 0;
@@ -161,15 +161,16 @@ module counter(clk, enable, reset, cnt_out);
     input clk;
     input enable;
     input reset;
-    output[3:0] cnt_out;
-    reg [3:0] cnt = 0;
+    output[7:0] cnt_out;
+    reg [7:0] cnt = 0;
 
     assign cnt_out = cnt;
 
     always @(posedge clk) begin
 
-        if(enable && reset && cnt < 8) begin 
+        if(enable && reset && cnt < 255) begin 
             cnt <= cnt + 1;
+            cnt <= cnt << 1;
             // if(cnt == 10) begin cnt <= 0; end
         end
 
@@ -179,19 +180,3 @@ module counter(clk, enable, reset, cnt_out);
 
     end
 endmodule
-
-// module przerzutnik_t(clk, t, q, neqQ);
-//     input clk;
-//     input t;
-//     reg flag = 1;
-//     output reg q;
-//     output reg neqQ;
-
-//     always @(posedge clk) begin
-//         if(t) begin
-//             q <= flag;
-//             neqQ <= !flag;
-//             flag <= !flag;
-//         end
-//     end
-// endmodule
