@@ -3,10 +3,9 @@ Adrian Mazur, Martin Rybka, grupa 7, poniedziałek 12;30, 25.04.2022
 */
 
 module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_Immobilized, LEDs);
-/*---------------------------------------------------------*/
+
     input switch_Damaged;
     input switch_Immobilized;
-/*---------------------------------------------------------*/
     input clk_main;
     input switch_inWombat;
     input switch_inDanger;
@@ -17,32 +16,28 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
     wire kabel_clk_10ms;
     wire kabel_inWombat;
     wire kabel_inDanger;
-/*---------------------------------------------------------*/
     wire kabel_Damaged;
-    wire kabel_Immobilized;
+    wire kabel_Immobilized;gi
     wire kabel_I_am_fucked;
-/*---------------------------------------------------------*/
     wire [3:0] kable_LEDs;
-    
 
     divider_1s div_1s(clk_main, kabel_clk_1s);
     divider_10ms div_10ms(clk_main, kabel_clk_10ms);
     
     Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
     Debouncer inDanger(kabel_clk_10ms, switch_inDanger, kabel_inDanger);
-/*---------------------------------------------------------*/
-    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_inDanger);
-    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_inDanger);
-/*---------------------------------------------------------*/
+    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_Damaged);
+    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_inImmobilized);
+    
+
+    amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
     
     counter selfBoom(kabel_clk_1s, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
-/*---------------------------------------------------------*/
-    amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
-/*---------------------------------------------------------*/
+    
     dead isdead(kabel_clk_1s , kable_LEDs, LEDs);
 
 endmodule
-/*---------------------------------------------------------*/
+
 module amIfucked(clk, danger ,damaged, immobilized, i_m_fucked);
     input clk;
     input danger;
@@ -60,7 +55,7 @@ module amIfucked(clk, danger ,damaged, immobilized, i_m_fucked);
     end
     
 endmodule
-/*---------------------------------------------------------*/
+
 module dead(clk, in_cnt, display);
     input clk;
     input[3:0] in_cnt;
@@ -165,19 +160,3 @@ module counter(clk, enable, reset, cnt_out);
 
     end
 endmodule
-
-// module przerzutnik_t(clk, t, q, neqQ);
-//     input clk;
-//     input t;
-//     reg flag = 1;
-//     output reg q;
-//     output reg neqQ;
-
-//     always @(posedge clk) begin
-//         if(t) begin
-//             q <= flag;
-//             neqQ <= !flag;
-//             flag <= !flag;
-//         end
-//     end
-// endmodule
