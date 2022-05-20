@@ -17,7 +17,7 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
     wire kabel_inWombat;
     wire kabel_inDanger;
     wire kabel_Damaged;
-    wire kabel_Immobilized;gi
+    wire kabel_Immobilized;
     wire kabel_I_am_fucked;
     wire [3:0] kable_LEDs;
 
@@ -27,8 +27,7 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
     Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
     Debouncer inDanger(kabel_clk_10ms, switch_inDanger, kabel_inDanger);
     Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_Damaged);
-    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_inImmobilized);
-    
+    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
 
     amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
     
@@ -93,7 +92,7 @@ module divider_10ms(clk, out);
 	reg flag = 1;
 	output reg out;
 
-	reg[14:0] cnt = 0;
+	reg[15:0] cnt = 0;
 
 	always @(posedge clk) begin
 		cnt <= (cnt + 1);
