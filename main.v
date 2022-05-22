@@ -1,4 +1,3 @@
-
 module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_Immobilized, LEDs);
 
     input clk_main;
@@ -20,7 +19,7 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
     wire kabel_I_am_fucked;
     wire [3:0] kable_LEDs;
 
-    divider_1s div_1s(clk_main, kabel_clk_1s);
+    // divider_1s div_1s(clk_main, kabel_clk_1s);
     divider_10ms div_10ms(clk_main, kabel_clk_10ms);
     
     Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
@@ -30,9 +29,9 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
 
     amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
     
-    counter selfBoom(kabel_clk_1s, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
+    counter selfBoom(kabel_clk_10ms, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
     
-    dead isdead(kabel_clk_1s , kable_LEDs, LEDs);
+    dead isdead(kabel_clk_10ms , kable_LEDs, LEDs);
 
 endmodule
 
@@ -71,28 +70,28 @@ module dead(clk, in_cnt, display);
     end
 endmodule
 
-module divider_1s(clk, out);
-	input clk;
-	reg flag = 0;
-	output reg out;
+// module divider_1s(clk, out);
+// 	input clk;
+// 	reg flag = 0;
+// 	output out;
 
-	reg[24:0] cnt = 0;
+// 	reg[24:0] cnt = 0;
 
-    assign out = flag;
+//     assign out = flag;
     
-	always @(posedge clk) begin
-		cnt <= (cnt + 1);
-		if(cnt > 6000000) begin // for 12MHz 
-			flag <= !flag;
-			cnt <= 0;
-		end
-	end
-endmodule
+// 	always @(posedge clk) begin
+// 		cnt <= (cnt + 1);
+// 		if(cnt > 6000000) begin // for 12MHz 
+// 			flag <= !flag;
+// 			cnt <= 0;
+// 		end
+// 	end
+// endmodule
 
 module divider_10ms(clk, out);
 	input clk;
 	reg flag = 0;
-	output reg out;
+	output out;
 
 	reg[15:0] cnt = 0;
 
@@ -120,7 +119,7 @@ module Debouncer(clk, in, out);
 
         if(in == 1) begin
             cnt <= cnt + 1;
-            if((cnt > 3) & flag) begin // 30ms
+            if((cnt >= 3) & flag) begin // 30ms
                 out <= 1;
                 flag <= 0;
             end
@@ -130,7 +129,7 @@ module Debouncer(clk, in, out);
 
         else begin
             cnt2 <= cnt2 + 1;
-            if((cnt2 > 3) & flag2) begin
+            if((cnt2 >= 3) & flag2) begin
                 out <= 0;
                 flag2 <= 0;
             end
@@ -145,18 +144,24 @@ module counter(clk, enable, reset, cnt_out);
     input enable;
     input reset;
     output[3:0] cnt_out;
+	reg [6:0] cnt1s = 0;
     reg [3:0] cnt = 0;
 
     assign cnt_out = cnt;
 
     always @(posedge clk) begin
 
-        if(enable && reset && cnt <= 10) begin // couting to 10
-            cnt <= cnt + 1;
+        if(enable && reset && cnt <= 10) begin // couting to 10 sec
+			cnt1s <= cnt1s + 1;
+			if(cnt1s >= 100) begin
+				cnt <= cnt + 1;
+				cnt1s <= 0;
+			end
         end
 
         if(!reset) begin 
             cnt <= 0;
+				cnt1s <= 0;
         end
 
     end
