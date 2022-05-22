@@ -144,7 +144,7 @@ module counter(clk, enable, reset, cnt_out);
     input enable;
     input reset;
     output[3:0] cnt_out;
-	reg [6:0] cnt1s = 0;
+    reg [6:0] cnt1s = 0;
     reg [3:0] cnt = 0;
 
     assign cnt_out = cnt;
@@ -161,7 +161,7 @@ module counter(clk, enable, reset, cnt_out);
 
         if(!reset) begin 
             cnt <= 0;
-				cnt1s <= 0;
+		    cnt1s <= 0;
         end
 
     end
