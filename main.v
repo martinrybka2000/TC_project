@@ -108,12 +108,12 @@ endmodule
 
 module divider_333ms(clk, out);
 	input clk;
+    output out;
 	reg flag = 1;
-	output reg out;
 
 	reg[21:0] cnt = 0;
 
-  assign out = flag;
+    assign out = flag;
   
 	always @(posedge clk) begin
 		cnt <= (cnt + 1);
@@ -164,24 +164,25 @@ module counter(clk, enable, reset, cnt_out);
     output[7:0] cnt_out;
     
     reg [6:0] cnt1s = 0;
-    reg [7:0] cnt = 0;
+    reg [7:0] cnt = 255;
 
     assign cnt_out = cnt;
 
     always @(posedge clk) begin
 
-        if(enable && reset && cnt < 255) begin  // couting to 10 sec
-			      cnt1s <= cnt1s + 1;
-			      if(cnt1s >= 100) begin
-				      cnt <= cnt + 1;
-              cnt <= cnt << 1;
-				      cnt1s <= 0;
-			      end
+        if(enable && reset && cnt > 0) begin  // couting to 10 sec
+			cnt1s <= cnt1s + 1;
+			if(cnt1s >= 100) begin
+				// cnt <= cnt + 1;
+                // cnt <= cnt << 1;
+                cnt <= cnt >> 1;
+				cnt1s <= 0;
+			end
         end
 
         if(!reset) begin 
-            cnt <= 0;
-		        cnt1s <= 0;
+            cnt <= 255;
+		    cnt1s <= 0;
         end
 
     end
