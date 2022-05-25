@@ -68,8 +68,12 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
         display <= (8'b11111111 ^ display) & in_cnt;
       end
       else begin
-        display <= 8'b11111111;
+        display <= 0;
+      end
+
+      if(display == 8'b00000000 || CHADflag == 1) begin
         CHADflag <= 1;
+        display <= 8'b11111111;
       end
     end
 endmodule
