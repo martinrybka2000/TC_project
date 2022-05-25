@@ -64,7 +64,7 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
     reg CHADflag <= 0; // celowe blokowanie wszytkich przycisków na rzecz symalacji nie działjącego systemu robota
 
     always @(posedge clk_3Hz) begin
-      if(enable) begin
+      if((enable && CHADflag == 0)) begin
         display <= (8'b11111111 ^ display) & in_cnt;
       end
       else begin
