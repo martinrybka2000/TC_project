@@ -9,7 +9,6 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
    
     output [7:0] LEDs;
    
-    wire kabel_clk_1s;
     wire kabel_clk_10ms;
     wire kabel_clk_333ms;
  
@@ -22,20 +21,17 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
 
     wire [7:0] kable_LEDs;
 
-    // divider_1s div_1s(clk_main, kabel_clk_1s);
-    divider_10ms div_10ms(clk_main, kabel_clk_10ms);
-    divider_333ms div_333ms(clk_main, kabel_clk_333ms);
+    divider_10ms div_10ms   (clk_main, kabel_clk_10ms);
+    divider_333ms div_333ms (clk_main, kabel_clk_333ms);
    
-    Debouncer inCombat(kabel_clk_10ms, switch_inWombat, kabel_inWombat);
-    Debouncer inDanger(kabel_clk_10ms, switch_inDanger, kabel_inDanger);
-    Debouncer Damaged(kabel_clk_10ms, switch_Damaged, kabel_Damaged);
-    Debouncer Immobilized(kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
+    Debouncer inCombat      (kabel_clk_10ms, switch_inWombat,    kabel_inWombat);
+    Debouncer inDanger      (kabel_clk_10ms, switch_inDanger,    kabel_inDanger);
+    Debouncer Damaged       (kabel_clk_10ms, switch_Damaged,     kabel_Damaged);
+    Debouncer Immobilized   (kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
 
-    amIfucked doI(kabel_clk_10ms, kabel_inDanger, kabel_Damaged, kabel_Immobilized, kabel_I_am_fucked);
-   
-    counter selfBoom(kabel_clk_10ms, kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
-
-    epilepsy my_eyes(kabel_clk_333ms, kabel_inWombat, kable_LEDs, LEDs);
+    amIfucked doI   (kabel_clk_10ms,    kabel_inDanger,    kabel_Damaged,  kabel_Immobilized, kabel_I_am_fucked);
+    counter selfBoom(kabel_clk_10ms,    kabel_I_am_fucked, kabel_inWombat, kable_LEDs);
+    epilepsy my_eyes(kabel_clk_333ms,   kabel_inWombat,     kable_LEDs,     LEDs);
 
 
 endmodule
@@ -65,34 +61,18 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
     input[7:0] in_cnt;
     output reg[7:0] display = 0;
 
+    reg CHADflag <= 0; // celowe blokowanie wszytkich przycisków na rzecz symalacji nie działjącego systemu robota
+
     always @(posedge clk_3Hz) begin
       if(enable) begin
         display <= (8'b11111111 ^ display) & in_cnt;
       end
       else begin
-        display <= 0;
+        display <= 8'b11111111;
+        CHADflag <= 1;
       end
     end
 endmodule
-
-// module divider_1s(clk, out);
-// input clk;
-// reg flag = 0;
-// output out;
-
-// reg[24:0] cnt = 0;
-
-//     assign out = flag;
-   
-// always @(posedge clk) begin
-// cnt <= (cnt + 1);
-// if(cnt > 6000000) begin // for 12MHz
-// flag <= !flag;
-// cnt <= 0;
-// end
-// end
-// endmodule
-
 
 module divider_10ms(clk, out);
     input clk;
