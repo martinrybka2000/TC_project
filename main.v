@@ -29,9 +29,9 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
     Debouncer Damaged       (kabel_clk_10ms, switch_Damaged,     kabel_Damaged);
     Debouncer Immobilized   (kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
 
-    chuckles_i_m_in_danger yes   (kabel_clk_10ms,    kabel_inDanger,               kabel_Damaged,  kabel_Immobilized, kabel_chuckles_i_m_in_danger);
-    counter selfBoom             (kabel_clk_10ms,    kabel_chuckles_i_m_in_danger, kabel_inWombat, kable_LEDs);
-    epilepsy my_eyes             (kabel_clk_333ms,   kabel_inWombat,               kable_LEDs,     LEDs);
+    chuckles_i_m_in_danger yes   (kabel_clk_10ms,  kabel_inDanger,               kabel_Damaged,  kabel_Immobilized, kabel_chuckles_i_m_in_danger);
+    counter selfBoom             (kabel_clk_10ms,  kabel_chuckles_i_m_in_danger, kabel_inWombat, kable_LEDs);
+    epilepsy my_eyes             (kabel_clk_333ms, kabel_inWombat,               kable_LEDs,     LEDs);
 
 endmodule
 
