@@ -43,4 +43,5 @@ kwalifikują się do rozpoczęcia odliczania.
 6. **Wymaganie 6 (ocena 5.5):** [ ] <br  />
     - Odliczanie widoczne na wyświetlaczu LCD
 # Schemat wyjsciowy z ISE Webpack
-![schematic](https://user-images.githubusercontent.com/39592198/169660680-4f455fe6-98c4-4ec4-9ec7-25620c063ebc.png)
+![schematic](https://user-images.githubusercontent.com/39592198/171502772-1d1e8039-d79c-4a5b-938b-6b708043f02f.png)
+
