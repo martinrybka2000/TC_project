@@ -1,57 +1,67 @@
-module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_Immobilized, LEDs);
-// aaaa
-    input clk_main;
+module main(clk_main, switch_inWombat, switch_inDanger, switch_Immobilized, enkoder_A, enkoder_B, LEDs);
 
-    input switch_inWombat;
+    input clk_main;           // main clock
+
+    input switch_inWombat;    //switches
     input switch_inDanger;
-    input switch_Damaged;
     input switch_Immobilized;
+
+    input enkoder_A;          // enkoder
+	input enkoder_B;
    
     output [7:0] LEDs;
    
-    wire kabel_clk_10ms;
+	wire kabel_clk_400us;     // divider wires
+    wire kabel_clk_10ms;    
     wire kabel_clk_333ms;
  
-    wire kabel_inWombat;
+    wire kabel_inWombat;      // status wires
     wire kabel_inDanger;
-    wire kabel_Damaged;
+    wire [6:0] kabel_Damage_taken;
     wire kabel_Immobilized;
 
+    wire enc_up;              // enkoder wires
+	wire enc_down;
+	wire clk_enc;
+	
     wire kabel_chuckles_i_m_in_danger;
 
-    wire [7:0] kable_LEDs;
+    wire [7:0] kable_LEDs;    // LEDs wire for cunter
 
-    divider div_10ms  (clk_main, 250000,  kabel_clk_10ms); // 0.01 * 50 000 000 / 2
+    divider div_10ms  (clk_main, 250000,  kabel_clk_10ms);  // 0.01 * 50 000 000 / 2
     divider div_333ms (clk_main, 8325000, kabel_clk_333ms); // 0.333 * 50 000 000 / 2
+    divider div_400us (clk_main, 10000,    kabel_clk_400us); // 0.0004 * 50 000 000 / 2 
    
-    Debouncer inCombat      (kabel_clk_10ms, switch_inWombat,    kabel_inWombat);
-    Debouncer inDanger      (kabel_clk_10ms, switch_inDanger,    kabel_inDanger);
-    Debouncer Damaged       (kabel_clk_10ms, switch_Damaged,     kabel_Damaged);
-    Debouncer Immobilized   (kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
+    Debouncer inCombat    (kabel_clk_10ms, switch_inWombat,    kabel_inWombat);
+    Debouncer inDanger    (kabel_clk_10ms, switch_inDanger,    kabel_inDanger);
+    Debouncer Immobilized (kabel_clk_10ms, switch_Immobilized, kabel_Immobilized);
+	
+	encoder conder      (kabel_clk_400us, enkoder_A, enkoder_B,  enc_up, enc_down, clk_enc);
+	damageStatus status (clk_enc,         enc_up,  enc_down, kabel_Damage_taken);
 
-    chuckles_i_m_in_danger yes   (kabel_clk_10ms,  kabel_inDanger,               kabel_Damaged,  kabel_Immobilized, kabel_chuckles_i_m_in_danger);
-    counter selfBoom             (kabel_clk_10ms,  kabel_chuckles_i_m_in_danger, kabel_inWombat, kable_LEDs);
-    epilepsy my_eyes             (kabel_clk_333ms, kabel_inWombat,               kable_LEDs,     LEDs);
+    chuckles_i_m_in_danger yes      (kabel_clk_10ms,  kabel_inDanger,               kabel_Damage_taken,  kabel_Immobilized, kabel_chuckles_i_m_in_danger);
+    counter                selfBoom (kabel_clk_10ms,  kabel_chuckles_i_m_in_danger, kabel_inWombat, kable_LEDs);
+    epilepsy               my_eyes  (kabel_clk_333ms, kabel_inWombat,               kable_LEDs,     LEDs);
 
 endmodule
 
-module chuckles_i_m_in_danger(clk, danger ,damaged, immobilized, i_m_in_danger);
+module chuckles_i_m_in_danger(clk, danger ,damage, immobilized, i_m_in_danger);
     input clk;
-    input danger;
-    input damaged;
+    input danger; 
+    input [6:0] damage; // damage input in procentage
     input immobilized;
     output reg i_m_in_danger;
    
     // checking for 2 of 3 inputs
     always @(posedge clk) begin
-        if((danger && damaged) || (danger && immobilized) || (damaged && immobilized)) begin
+        
+        if((danger && (damage > 50)) || (danger && immobilized) || ((damage > 50) && immobilized)) begin
             i_m_in_danger <= 1; // yes
         end
         else begin
             i_m_in_danger <= 0; // no
         end
     end
-   
 endmodule
 
 module epilepsy(clk_3Hz, enable, in_cnt, display);
@@ -64,7 +74,7 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
 
     always @(posedge clk_3Hz) begin
       if((enable && CHADflag == 0)) begin
-        display <= (8'b11111111 ^ display) & in_cnt;    // just displaying
+        display <= (8'b11111111 ^ display) & in_cnt;    // blinking leds
       end
       else begin
         display <= 0;  // if robot goes out of combat then reset
@@ -73,8 +83,7 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
       if(in_cnt == 8'b00000000 || CHADflag == 1) begin  // if dead then light up all LEDs and block changing its state
         CHADflag <= 1;
         display <= 8'b11111111;
-      end
-      
+      end  
     end
 endmodule
 
@@ -159,3 +168,67 @@ module counter(clk, enable, reset, cnt_out);
     end
 endmodule
 
+module damageStatus(clk, add, minus, cnt);
+	input clk;
+	input add;
+	input minus;
+	output reg [6:0] cnt = 0;
+
+
+	always @ (posedge clk) begin 
+		if( cnt < 100 && add == 1) cnt <= cnt + 1; // if enkoder up then add damage
+		else if(cnt != 0 && minus == 1) cnt <= cnt - 1; // else lower
+	end
+
+endmodule
+
+module encoder(clk, A, B, up, down, out_clk);
+	input clk;
+	input A;
+	input B;
+
+	output reg up = 0;
+	output reg down = 0;
+	output reg out_clk = 0;
+
+	wire [2:0] q;
+	reg [2:0] j;
+	reg [2:0] k;
+
+	jk_flip_flop jk0(clk, j[0], k[0], q[0]);
+	jk_flip_flop jk1(clk, j[1], k[1], q[1]);
+	jk_flip_flop jk2(clk, j[2], k[2], q[2]);
+
+	always @ (posedge clk) begin 
+		up <= q[2] * ~q[1] * q[0];
+		down <= ~q[2] * q[1] * ~q[0];
+		out_clk <= up | down;		
+	end
+
+	always @ (posedge clk) begin 
+		j[0] <= (~A)*q[2] + A*(~B)*q[1];
+		j[1] <= (~A)*B*q[0] + (~A)*(~B)*(~q[2])*q[0];
+		j[2] <= (~A)*B*(~q[1])*(~q[0]);
+
+		k[0] <= A*B + B*(~q[2]) + (~A)*q[2]*(~q[1]);
+		k[1] <= A + (~B)*(~q[2])*q[0];
+		k[2] <= B + (~A)*(~q[1]) + A*q[0];
+	end
+
+endmodule
+
+module jk_flip_flop (clk, j, k, q);
+	input j, k, clk;
+	output q;
+
+	reg q = 0;
+
+	always @ (posedge clk) begin
+		case ({j,k})
+			2'b00: q = q;
+			2'b01: q = 1'b0;
+			2'b10: q = 1'b1;
+			2'b11: q = ~q;
+		endcase
+	end
+endmodule
