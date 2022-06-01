@@ -35,20 +35,20 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Damaged, switch_I
 
 endmodule
 
-module chuckles_i_m_in_danger(clk, danger ,damaged, immobilized, i_m_fucked);
+module chuckles_i_m_in_danger(clk, danger ,damaged, immobilized, i_m_in_danger);
     input clk;
     input danger;
     input damaged;
     input immobilized;
-    output reg i_m_fucked;
+    output reg i_m_in_danger;
    
     // checking for 2 of 3 inputs
     always @(posedge clk) begin
         if((danger && damaged) || (danger && immobilized) || (damaged && immobilized)) begin
-            i_m_fucked <= 1; // yes
+            i_m_in_danger <= 1; // yes
         end
         else begin
-            i_m_fucked <= 0; // no
+            i_m_in_danger <= 0; // no
         end
     end
    
@@ -78,7 +78,7 @@ module epilepsy(clk_3Hz, enable, in_cnt, display);
     end
 endmodule
 
-module divider(clk, bicycles, out); //just one divider module, reqiure how many cycles to wait
+module divider(clk, bicycles, out); //just one divider module, reqiurs how many cycles to wait
     input clk;
     input [24:0] bicycles; // defing input and its limitation
     output out;
@@ -158,3 +158,4 @@ module counter(clk, enable, reset, cnt_out);
 
     end
 endmodule
+
