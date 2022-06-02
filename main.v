@@ -218,13 +218,13 @@ module encoder(clk, A, B, up, down, out_clk);
 endmodule
 
 module jk_flip_flop (clk, j, k, q);
-	input j, k, clk;
-	output q;
-
-	reg q = 0;
+	input j; 
+    input k;
+    input clk;
+	output reg q = 0;
 
 	always @ (posedge clk) begin
-		case ({j,k})
+		case ({j,k})        // true table 
 			2'b00: q = q;
 			2'b01: q = 1'b0;
 			2'b10: q = 1'b1;
