@@ -28,8 +28,8 @@ module main(clk_main, switch_inWombat, switch_inDanger, switch_Immobilized, enko
 
     wire [7:0] kable_LEDs;    // LEDs wire for cunter
 
-    divider div_10ms  (clk_main, 250000,  kabel_clk_10ms);  // 0.01 * 50 000 000 / 2
-    divider div_333ms (clk_main, 8325000, kabel_clk_333ms); // 0.333 * 50 000 000 / 2
+    divider div_10ms  (clk_main, 250000,  kabel_clk_10ms);   // 0.01 * 50 000 000 / 2
+    divider div_333ms (clk_main, 8325000, kabel_clk_333ms);  // 0.333 * 50 000 000 / 2
     divider div_400us (clk_main, 10000,    kabel_clk_400us); // 0.0004 * 50 000 000 / 2 
    
     Debouncer inCombat    (kabel_clk_10ms, switch_inWombat,    kabel_inWombat);
