@@ -1,5 +1,5 @@
 module main(clk_main, switch_inWombat, switch_inDanger, switch_Immobilized, enkoder_A, enkoder_B, LEDs);
-
+    // na 5.5
     input clk_main;           // main clock
 
     input switch_inWombat;    //switches
